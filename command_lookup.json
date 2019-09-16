@@ -1,0 +1,1 @@
+{"P": ["select_pen"], "D": ["pen_down"], "G": ["goto"], "N": ["draw_line", [0]], "E": ["draw_line", [90]], "S": ["draw_line", [180]], "W": ["draw_line", [270]], "X": ["go_along"], "Y": ["go_down"], "U": ["pen_up"]}
