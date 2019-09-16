@@ -12,12 +12,18 @@ class TigrParser(AbstractParser):
     def __init__(self, drawer):
         super().__init__(drawer)
         self.regex_pattern = r'(^[a-zA-Z]\b)\s+?(-?\b\d+\.?\d?\b)?\s*?([#|//].*)?$'
+        self.__output_log = []
         try:
             with open("command_lookup.json", 'r') as json_file:
                 # load configurable language reference from file
                 self.language_commands = json.load(json_file)  # convert to dict
         except (IOError, FileNotFoundError) as e:  # This error is thrown to be caught further up the stack
             raise FileNotFoundError(f"Error loading commands from file: {e}")
+
+    @property
+    def output_log(self):
+        # readonly
+        return self.__output_log
 
     def parse(self, raw_source):
         if type(raw_source) == str:  # defensively handles edge case where a single command was passed as a string
@@ -49,7 +55,8 @@ class TigrParser(AbstractParser):
                     # explodes the created args array into the function that is being called
                     # if there is nothing in the array, nothing will be passed! Nice and fancy.
                     try:
-                        self.drawer.__getattribute__(command_info[0])(*args)
+                        output = self.drawer.__getattribute__(command_info[0])(*args)
+                        self.__output_log.append(output)
                     except AttributeError as e:
                         raise SyntaxError(
                             f'Command {self.command} Not recognized by drawer - Command reference mismatch detected')

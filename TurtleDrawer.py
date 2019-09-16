@@ -28,14 +28,17 @@ class TurtleDrawer(AbstractDrawer):
         """
         if pen_num in range(0, len(self.pen_colours) - 1):
             self.my_turtle.pencolor(self.pen_colours[pen_num])
+            return f"Set Pen Colour To {self.pen_colours[pen_num]}"
         else:
             raise ValueError(f"Pen Number was {pen_num}, must be between 0 and {len(self.pen_colours) - 1}")
 
     def pen_down(self):
         self.my_turtle.pendown()
+        return "Pen Down"
 
     def pen_up(self):
         self.my_turtle.penup()
+        return "Pen Up"
 
     def go_along(self, along):
         """ if along is negative, this will move backwards
@@ -45,6 +48,7 @@ class TurtleDrawer(AbstractDrawer):
          """
         self.my_turtle.setheading(0)
         self.my_turtle.forward(along)
+        return f"Moved Pen Along {along}"
 
     def go_down(self, down):
         """
@@ -56,6 +60,7 @@ class TurtleDrawer(AbstractDrawer):
         """
         self.my_turtle.setheading(270)
         self.my_turtle.forward(down)
+        return f"Moved Pen Down {down}"
 
     def draw_line(self, direction, distance):
         """
@@ -75,6 +80,7 @@ class TurtleDrawer(AbstractDrawer):
         if direction in range(0, 360):
             self.my_turtle.setheading(direction)
             self.my_turtle.forward(distance)
+            return f"Moved Pen {distance} in direction {direction}"
         else:
             raise ValueError(f"Direction given was {direction}, must be between 0 - 360")
 
