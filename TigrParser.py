@@ -29,6 +29,35 @@ class TigrParser(AbstractParser):
         # readonly
         return self.__output_log
 
+    def parse(self, raw_source):
+        if type(raw_source) == str:  # defensively handles edge case where a single command was passed as a string
+            raw_source = [raw_source]
+        self.source = raw_source
+        for line_number in range(0, len(self.source)-1):
+            self.current_line_number = line_number
+            trimmed_line = self.source[self.current_line_number].strip()
+            if not trimmed_line:
+                continue
+            self.current_line = trimmed_line
+
+            self._parse_line()
+
+            self._prepare_command()
+            # explodes the created args array into the function that is being called
+            # if there is nothing in the array, nothing will be passed! Nice and fancy.
+            try:
+                self._execute_command()
+            except Exception as e:  # intercept error thrown that wasn't caught and appending the line number
+                # that caused it
+                args = e.args
+                if args:
+                    arg0 = args[0]
+                else:
+                    arg0 = str()
+                arg0 += f' at source line {self.current_line_number}'
+                e.args = (arg0, *args[1:])
+                raise
+
     def _parse_line(self):
         match = re.findall(self.regex_pattern, self.current_line)
         if match:
@@ -59,37 +88,14 @@ class TigrParser(AbstractParser):
         else:
             raise SyntaxError(f"Command {self.command} on line {self.current_line_number} not recognized")
 
-    def parse(self, raw_source):
-        if type(raw_source) == str:  # defensively handles edge case where a single command was passed as a string
-            raw_source = [raw_source]
-        self.source = raw_source
-        for line_number in range(0, len(self.source)-1):
-            self.current_line_number = line_number
-            trimmed_line = self.source[self.current_line_number].strip()
-            if not trimmed_line:
-                continue
-            self.current_line = trimmed_line
+    def _execute_command(self):
+        try:
+            output = self.drawer.__getattribute__(self.drawer_command)(*self.current_args)
+        except AttributeError as e:
+            raise SyntaxError(
+                f'Command {self.command} Not recognized by drawer - Command reference mismatch detected')
+        else:
+            self._log_drawer_output(output)
 
-            self._parse_line()
-
-            self._prepare_command()
-            # explodes the created args array into the function that is being called
-            # if there is nothing in the array, nothing will be passed! Nice and fancy.
-            try:
-                output = self.drawer.__getattribute__(self.drawer_command)(*self.current_args)
-                self.__output_log.append(output)
-            except AttributeError as e:
-                raise SyntaxError(
-                    f'Command {self.command} Not recognized by drawer - Command reference mismatch detected')
-            except Exception as e:  # intercept error thrown that wasn't caught and appending the line number
-                # that caused it
-                args = e.args
-                if args:
-                    arg0 = args[0]
-                else:
-                    arg0 = str()
-                arg0 += f' at source line {self.current_line_number}'
-                e.args = (arg0, *args[1:])
-                raise
-
-
+    def _log_drawer_output(self, output):
+        self.__output_log.append(output)
