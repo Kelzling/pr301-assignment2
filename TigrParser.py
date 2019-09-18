@@ -15,6 +15,7 @@ class TigrParser(AbstractParser):
         self.__output_log = []
         self.current_line_number = None
         self.current_line = None
+        self.current_args = None
         try:
             with open("command_lookup.json", 'r') as json_file:
                 # load configurable language reference from file
@@ -57,16 +58,16 @@ class TigrParser(AbstractParser):
 
             command_info = self.language_commands.get(self.command)
             if command_info:
-                args = []
+                self.current_args = []
                 if len(command_info) > 1:
-                    args.append(*command_info[1])
+                    self.current_args.append(*command_info[1])
                 if self.data:
-                    args.append(self.data)
+                    self.current_args.append(self.data)
 
                 # explodes the created args array into the function that is being called
                 # if there is nothing in the array, nothing will be passed! Nice and fancy.
                 try:
-                    output = self.drawer.__getattribute__(command_info[0])(*args)
+                    output = self.drawer.__getattribute__(command_info[0])(*self.current_args)
                     self.__output_log.append(output)
                 except AttributeError as e:
                     raise SyntaxError(

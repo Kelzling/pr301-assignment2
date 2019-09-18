@@ -3,7 +3,7 @@ X 5 # go to 5 along
 Y 15 # go to 15 down // Carrot 15 
 
 D  # pen down
-X -15 // L 17
+X -17 // L 17
 y   -200
 
 W 2    # draw west 2cm
