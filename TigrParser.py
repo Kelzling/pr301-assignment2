@@ -13,6 +13,8 @@ class TigrParser(AbstractParser):
         super().__init__(drawer)
         self.regex_pattern = r'(^[a-zA-Z]\b)\s+?(-?\b\d+\.?\d?\b)?\s*?([#|//].*)?$'
         self.__output_log = []
+        self.current_line_number = None
+        self.current_line = None
         try:
             with open("command_lookup.json", 'r') as json_file:
                 # load configurable language reference from file
@@ -30,9 +32,11 @@ class TigrParser(AbstractParser):
             raw_source = [raw_source]
         self.source = raw_source
         for line_number in range(0, len(self.source)-1):
+            self.current_line_number = line_number
             trimmed_line = self.source[line_number].strip()
             if not trimmed_line:
                 continue
+            self.current_line = trimmed_line
             match = re.findall(self.regex_pattern, trimmed_line)
             if match:
                 groups = match[0]
