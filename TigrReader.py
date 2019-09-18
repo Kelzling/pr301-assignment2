@@ -63,6 +63,8 @@ if __name__ == "__main__":
             # read from piped input
             source = sys.stdin.readlines()
 
-        TigrReader(TigrParser(TurtleDrawer()), optional_source=source).go()
+        reader = TigrReader(TigrParser(TurtleDrawer()), optional_source=source)
+        reader.go()
+        print(*reader.parser.output_log)
 
     time.sleep(10)
