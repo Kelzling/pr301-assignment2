@@ -16,6 +16,7 @@ class TigrParser(AbstractParser):
         self.current_line_number = None
         self.current_line = None
         self.current_args = None
+        self.drawer_command = None
         try:
             with open("command_lookup.json", 'r') as json_file:
                 # load configurable language reference from file
@@ -44,6 +45,20 @@ class TigrParser(AbstractParser):
             raise SyntaxError(
                 f"line number {self.current_line_number} contains invalid syntax: \n\t{self.current_line}")
 
+    def _prepare_command(self):
+        command_info = self.language_commands.get(self.command)
+        self.current_args = []
+        self.drawer_command = None
+
+        if command_info:
+            if len(command_info) > 1:
+                self.current_args.append(*command_info[1])
+            if self.data:
+                self.current_args.append(self.data)
+            self.drawer_command = command_info[0]
+        else:
+            raise SyntaxError(f"Command {self.command} on line {self.current_line_number} not recognized")
+
     def parse(self, raw_source):
         if type(raw_source) == str:  # defensively handles edge case where a single command was passed as a string
             raw_source = [raw_source]
@@ -54,34 +69,27 @@ class TigrParser(AbstractParser):
             if not trimmed_line:
                 continue
             self.current_line = trimmed_line
+
             self._parse_line()
 
-            command_info = self.language_commands.get(self.command)
-            if command_info:
-                self.current_args = []
-                if len(command_info) > 1:
-                    self.current_args.append(*command_info[1])
-                if self.data:
-                    self.current_args.append(self.data)
+            self._prepare_command()
+            # explodes the created args array into the function that is being called
+            # if there is nothing in the array, nothing will be passed! Nice and fancy.
+            try:
+                output = self.drawer.__getattribute__(self.drawer_command)(*self.current_args)
+                self.__output_log.append(output)
+            except AttributeError as e:
+                raise SyntaxError(
+                    f'Command {self.command} Not recognized by drawer - Command reference mismatch detected')
+            except Exception as e:  # intercept error thrown that wasn't caught and appending the line number
+                # that caused it
+                args = e.args
+                if args:
+                    arg0 = args[0]
+                else:
+                    arg0 = str()
+                arg0 += f' at source line {self.current_line_number}'
+                e.args = (arg0, *args[1:])
+                raise
 
-                # explodes the created args array into the function that is being called
-                # if there is nothing in the array, nothing will be passed! Nice and fancy.
-                try:
-                    output = self.drawer.__getattribute__(command_info[0])(*self.current_args)
-                    self.__output_log.append(output)
-                except AttributeError as e:
-                    raise SyntaxError(
-                        f'Command {self.command} Not recognized by drawer - Command reference mismatch detected')
-                except Exception as e:  # intercept error thrown that wasn't caught and appending the line number
-                    # that caused it
-                    args = e.args
-                    if args:
-                        arg0 = args[0]
-                    else:
-                        arg0 = str()
-                    arg0 += f' at source line {self.current_line_number}'
-                    e.args = (arg0, *args[1:])
-                    raise
 
-            else:
-                raise SyntaxError(f"Command {self.command} on line {self.current_line_number} not recognized")
