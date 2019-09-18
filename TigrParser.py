@@ -35,16 +35,13 @@ class TigrParser(AbstractParser):
         self.source = raw_source
         for line_number in range(0, len(self.source)-1):
             self.current_line_number = line_number
-            trimmed_line = self.source[self.current_line_number].strip()
-            if not trimmed_line:
+            if not self._prepare_line():
                 continue
-            self.current_line = trimmed_line
 
             self._parse_line()
 
             self._prepare_command()
-            # explodes the created args array into the function that is being called
-            # if there is nothing in the array, nothing will be passed! Nice and fancy.
+
             try:
                 self._execute_command()
             except Exception as e:  # intercept error thrown that wasn't caught and appending the line number
@@ -57,6 +54,17 @@ class TigrParser(AbstractParser):
                 arg0 += f' at source line {self.current_line_number}'
                 e.args = (arg0, *args[1:])
                 raise
+
+    def _prepare_line(self):
+        trimmed_line = self.source[self.current_line_number].strip()
+        if self._is_line_blank(trimmed_line):
+            return False
+        else:
+            self.current_line = trimmed_line
+            return True
+
+    def _is_line_blank(self, line):
+        return not line
 
     def _parse_line(self):
         match = re.findall(self.regex_pattern, self.current_line)
@@ -90,6 +98,8 @@ class TigrParser(AbstractParser):
 
     def _execute_command(self):
         try:
+            # explodes the created args array into the function that is being called
+            # if there is nothing in the array, nothing will be passed! Nice and fancy.
             output = self.drawer.__getattribute__(self.drawer_command)(*self.current_args)
         except AttributeError as e:
             raise SyntaxError(
