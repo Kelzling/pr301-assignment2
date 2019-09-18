@@ -1,0 +1,25 @@
+Bad Smells
+
+Detected:
+
+Name            Rank    Class           Location/Details
+
+Long Method      1      TigrParser          parse
+Temporary Field  4      TigrParser          command, data, source, regex_pattern 
+Inappropriate           TigrParser/         using __getattr__, must be a better way
+    Intimacy     3          TurtleDrawer        to handle this
+Duplication      5      TurtleDrawer        draw_line, go_along, go_down
+Divergent Change 2      TigrParser          Parsing + exception handling
+
+Documented:
+
+Bad Smell 1:
+Name:       Long Method
+Location:   TIGr-TigrParser.py-TigrParser-parse-line 28-78
+Reasons:    
+            1. Method is too long by several standards - 50 lines, and doesn't fit on a single screen
+            2. It is not very easy to understand everything the method is doing and why without a fair amount of reading
+            3. There are other bad smells to TigrParser that will be harder to refactor because this method is so long, or are possibly only a problem because nearly everything the class does is handled by the one method.
+            
+Strategies: Extract Method, Decompose Conditional,
+            Method Object (It's half there already, a couple more steps to add from this could be useful before applying Extract Method)
