@@ -23,3 +23,38 @@ Reasons:
             
 Strategies: Extract Method, Decompose Conditional,
             Method Object (It's half there already, a couple more steps to add from this could be useful before applying Extract Method)
+            
+            
+            
+
+
+Refactoring Evaluations:
+
+Bad Smell 1:
+Name:
+    Long Method
+Original Location:
+    TIGr-TigrParser.py-TigrParser-parse-line 28-78
+    
+Why was it the worst?
+    This smell was the worst because the one really long method had a bunch of other bad smells in it that would be much harder to extract and cure while they were all tangled up together. 
+
+Version Control:
+    Commits from: https://github.com/Kelzling/pr301-assignment2/commit/dc7fb843ce09742123e4e497eacc7ccc0b37421d
+    To: https://github.com/Kelzling/pr301-assignment2/commit/d9eadf2ac66a4bf6de58e58c22e09a7f230118db
+    Total Number: 8
+
+Refactoring Steps Taken:
+    1) Method Object - This class was effectively a method object already, so I used the second step from Method Object - move local variables to class fields to make it easier to untangle the long method.
+    2) Extract Method - Extracted what became the _parse_line() method, which is the part that took the trimmed line, applied the regex pattern, and stored the contents of the match group on the object.
+    3) Method Object - I applied the moving local variables to class fields part of Method Object again to move the args local variable that was used by two separate parts of the long method, which were then extracted in the next two steps.
+    4) Extract Method - Extracted what became the _prepare_command() method, which was the part that took the data that was parsed, used the look up table, and prepared the information that is needed to interact with the drawer
+    5) Extract Method - Extracted what became the _exectute_command() method, which is the part that was interacting with the drawer object. Also extracted the logging of the output to a separate method for readability purposes.
+    6) Extract Method - Extracted what became the _prepare_line() method, which is the part that trimmed excess whitespace off each end of the string and checked to see if it was actually blank or not. This involved deciding how to handle the fact that failng this check currently just led to a continue statement to skip to the next iteration of the parsing loop. In the end I made the function return a boolean value to indicate whether the line should continue to be parsed or not.
+    7) Ran PEP8 validation over the code and fixed minor warnings
+
+Testing Done:
+    At this time, the groups tester has not yet supplied any unit tests, so I needed to test manually. After each step documented above, I ran the code through several variations of commands that I had prepared. Some of these were designed to throw specific errors so I could view if the expected error output had been displayed. The output log was printed to the console for examining, and I could see the output to the drawer. This helped me catch several times where the code had actually stopped working as intended and find the bugs fairly quickly.
+
+Effectiveness Evaluation:
+    I think that this refactoring has really helped overall. The parse method is now only 24 lines long, which includes spacing and excetion handling, and most of it is calls to methods with descriptive names that indicate the steps being taken. Each of these shorter methods handles one aspect of parsing the line, and is much easier to understand. Some of them had previously had their error handling quite far separated from the remainder of the logic due to indentation, and this was difficult to grasp. It should also be much easier to identify and handle other bad smells now that the different parts of the algorithm have been separated out.
