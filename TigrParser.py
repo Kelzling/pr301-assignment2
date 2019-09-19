@@ -49,14 +49,17 @@ class TigrParser(AbstractParser):
                 self._execute_command()
             except Exception as e:  # intercept error thrown that wasn't caught and appending the line number
                 # that caused it
-                args = e.args
-                if args:
-                    arg0 = args[0]
-                else:
-                    arg0 = str()
-                arg0 = f'Error on Line {self.current_line_number}: {self.current_line}\n\t' + arg0
-                e.args = (arg0, *args[1:])
-                raise
+                self._update_exception(e)
+
+    def _update_exception(self, e):
+        args = e.args
+        if args:
+            arg0 = args[0]
+        else:
+            arg0 = str()
+        arg0 = f'Error on Line {self.current_line_number}: {self.current_line}\n\t' + arg0
+        e.args = (arg0, *args[1:])
+        raise
 
     def _prepare_line(self):
         trimmed_line = self.source[self.current_line_number].strip()

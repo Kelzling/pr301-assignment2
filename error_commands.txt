@@ -3,9 +3,10 @@ X 5 # go to 5 along
 Y 15 # go to 15 down // Carrot 15 
 
 D  # pen down
-X -17 // L 17
+X -17 //
+ L 17
 y   -200
-sfsg
+p 3 // sfsg
 W 2    # draw west 2cm
 N 1    # then north 1
 e 2    // then east 2
