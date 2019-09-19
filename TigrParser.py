@@ -33,7 +33,7 @@ class TigrParser(AbstractParser):
         if type(raw_source) == str:  # defensively handles edge case where a single command was passed as a string
             raw_source = [raw_source]
         self.source = raw_source
-        for line_number in range(0, len(self.source)-1):
+        for line_number in range(0, len(self.source) - 1):
             self.current_line_number = line_number
             if not self._prepare_line():
                 continue
@@ -101,7 +101,7 @@ class TigrParser(AbstractParser):
             # explodes the created args array into the function that is being called
             # if there is nothing in the array, nothing will be passed! Nice and fancy.
             output = self.drawer.__getattribute__(self.drawer_command)(*self.current_args)
-        except AttributeError as e:
+        except AttributeError:
             raise SyntaxError(
                 f'Command {self.command} Not recognized by drawer - Command reference mismatch detected')
         else:
