@@ -4,17 +4,20 @@ Detected:
 
 Name            Rank    Class           Location/Details
 
-Long Method      1      TigrParser          parse
-Temporary Field  4      TigrParser          command, data, source, regex_pattern 
+--Long Method--  1      TigrParser          parse
+Temporary Field  5      TigrParser          source, regex_pattern 
 Inappropriate           TigrParser/         using __getattr__, must be a better way
     Intimacy     3          TurtleDrawer        to handle this
-Duplication      5      TurtleDrawer        draw_line, go_along, go_down
+Duplication      6      TurtleDrawer        draw_line, go_along, go_down
 Divergent Change 2      TigrParser          Parsing + exception handling
+Speculative      4      Abstract classes    The fact that there is only one sub class for each
+    Generality                                  of the abstract classes provided by Mike
 
 Documented:
 
 Bad Smell 1:
 Name:       Long Method
+Category:   Bloater
 Location:   TIGr-TigrParser.py-TigrParser-parse-line 28-78
 Reasons:    
             1. Method is too long by several standards - 50 lines, and doesn't fit on a single screen
@@ -25,7 +28,18 @@ Strategies: Extract Method, Decompose Conditional,
             Method Object (It's half there already, a couple more steps to add from this could be useful before applying Extract Method)
             
             
-            
+Bad Smell 2:
+Name:       Divergent Change
+Category:   Change Preventer
+Location:   TIGr-TigrParser.py-TigrParser-parse,_parse_line,_prepare_command, _exectute_command-lines 50-57, 83-84,98,107
+Reasons:
+            1. This class is supposed to be mainly responsible for parsing the source code that it has been given, and this has also extended to throwing errors when things go wrong. While this originally seemed reasonable, it now gives the class multiple reasons to change - when the parsing needs to change, or when the exception handling (eg how line numbers are displayed to the user) needs to change
+            2. If a new way of parsing wanted to be implemented (eg a different sub class for AbstractParser), the exception handling code would need to be reimplemented
+            3. The exception throwing code is scattered throughout the class, and it all has it's own way of adding the line/line number to display to the  - inconsistency
+            4. This has resulted in pieces of information being used all throughout the class that may not otherwise need to be (current_line_number, current_line)
+            5. This all makes the output, and the class itself a bit more confusing than it may otherwise need to be
+Strategies: Extract Method? To help tidy up the class,
+            Extract Class (once the method/class has been reworked)
 
 
 Refactoring Evaluations:
@@ -33,6 +47,8 @@ Refactoring Evaluations:
 Bad Smell 1:
 Name:
     Long Method
+Category:
+    Bloater
 Original Location:
     TIGr-TigrParser.py-TigrParser-parse-line 28-78
     

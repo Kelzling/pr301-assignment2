@@ -5,6 +5,7 @@ import json
 """
 Uses Regular Expressions in Parser, Parsed from Configurable Lookup Table
 Written by Kelsey Vavasour and Thomas Baines
+Refactored by Kelsey Vavasour
 """
 
 
