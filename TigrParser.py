@@ -54,7 +54,7 @@ class TigrParser(AbstractParser):
                     arg0 = args[0]
                 else:
                     arg0 = str()
-                arg0 += f' at source line {self.current_line_number}'
+                arg0 = f'Error on Line {self.current_line_number}: {self.current_line}\n\t' + arg0
                 e.args = (arg0, *args[1:])
                 raise
 
@@ -83,7 +83,7 @@ class TigrParser(AbstractParser):
         else:
             # Raises SyntaxError to indicate that the line line_number didn't match the required pattern
             raise TIGrSyntaxException(
-                f"invalid syntax: \n\t{self.current_line}")
+                f"Invalid Syntax")
 
     def _prepare_command(self):
         command_info = self.language_commands.get(self.command)
