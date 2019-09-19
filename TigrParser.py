@@ -1,4 +1,5 @@
 from TIGr import AbstractParser
+from TIGrSyntaxException import TIGrSyntaxException
 import re
 import json
 
@@ -36,14 +37,15 @@ class TigrParser(AbstractParser):
         self.source = raw_source
         for line_number in range(0, len(self.source) - 1):
             self.current_line_number = line_number
-            if not self._prepare_line():
-                continue
-
-            self._parse_line()
-
-            self._prepare_command()
 
             try:
+                if not self._prepare_line():
+                    continue
+
+                self._parse_line()
+
+                self._prepare_command()
+
                 self._execute_command()
             except Exception as e:  # intercept error thrown that wasn't caught and appending the line number
                 # that caused it
@@ -80,8 +82,8 @@ class TigrParser(AbstractParser):
                 self.data = None
         else:
             # Raises SyntaxError to indicate that the line line_number didn't match the required pattern
-            raise SyntaxError(
-                f"line number {self.current_line_number} contains invalid syntax: \n\t{self.current_line}")
+            raise TIGrSyntaxException(
+                f"invalid syntax: \n\t{self.current_line}")
 
     def _prepare_command(self):
         command_info = self.language_commands.get(self.command)
@@ -95,7 +97,7 @@ class TigrParser(AbstractParser):
                 self.current_args.append(self.data)
             self.drawer_command = command_info[0]
         else:
-            raise SyntaxError(f"Command {self.command} on line {self.current_line_number} not recognized")
+            raise TIGrSyntaxException(f"Command {self.command} not valid")
 
     def _execute_command(self):
         try:
@@ -103,7 +105,7 @@ class TigrParser(AbstractParser):
             # if there is nothing in the array, nothing will be passed! Nice and fancy.
             output = self.drawer.__getattribute__(self.drawer_command)(*self.current_args)
         except AttributeError:
-            raise SyntaxError(
+            raise TIGrSyntaxException(
                 f'Command {self.command} Not recognized by drawer - Command reference mismatch detected')
         else:
             self._log_drawer_output(output)
