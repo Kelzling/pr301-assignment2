@@ -22,7 +22,7 @@ class TigrReader(AbstractSourceReader):
             self.parser.parse(self.source)
         except Exception as e:  # nice error display to user
             print("TIGr encountered an error and had to exit", file=sys.stderr)
-            print(e, file=sys.stderr)
+            print(*e.args, file=sys.stderr)
             exit(1)
 
 
@@ -59,11 +59,11 @@ if __name__ == "__main__":
             # only on windows, if this was portable we should add the linux interrupt command x3
             print("If no commands are entered, you will be prompted for a file name.")
             source = sys.stdin.readlines()
-        else:
+        # else:
             # read from piped input
-            source = sys.stdin.readlines()
+            # source = sys.stdin.readlines()
 
-        reader = TigrReader(TigrParser(TurtleDrawer()), optional_source=source)
+        reader = TigrReader(TigrParser(TurtleDrawer()), optional_file_name="error_commands.txt")
         reader.go()
         print(*reader.parser.output_log)
 

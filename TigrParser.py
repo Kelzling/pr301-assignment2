@@ -1,5 +1,4 @@
 from TIGr import AbstractParser
-from TIGrSyntaxException import TIGrSyntaxException
 import re
 import json
 
@@ -85,7 +84,7 @@ class TigrParser(AbstractParser):
                 self.data = None
         else:
             # Raises SyntaxError to indicate that the line line_number didn't match the required pattern
-            raise TIGrSyntaxException(
+            raise SyntaxError(
                 f"Invalid Syntax")
 
     def _prepare_command(self):
@@ -100,7 +99,7 @@ class TigrParser(AbstractParser):
                 self.current_args.append(self.data)
             self.drawer_command = command_info[0]
         else:
-            raise TIGrSyntaxException(f"Command {self.command} not valid")
+            raise SyntaxError(f"Command {self.command} not valid")
 
     def _execute_command(self):
         try:
@@ -108,7 +107,7 @@ class TigrParser(AbstractParser):
             # if there is nothing in the array, nothing will be passed! Nice and fancy.
             output = self.drawer.__getattribute__(self.drawer_command)(*self.current_args)
         except AttributeError:
-            raise TIGrSyntaxException(
+            raise SyntaxError(
                 f'Command {self.command} Not recognized by drawer - Command reference mismatch detected')
         else:
             self._log_drawer_output(output)
