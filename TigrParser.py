@@ -1,4 +1,5 @@
 from TIGr import AbstractParser
+from TigrExceptionHandler import TigrExceptionHandler
 import re
 import json
 
@@ -18,6 +19,7 @@ class TigrParser(AbstractParser):
         self.current_line = None
         self.current_args = None
         self.drawer_command = None
+        self.exception_handler = TigrExceptionHandler()
         try:
             with open("command_lookup.json", 'r') as json_file:
                 # load configurable language reference from file
@@ -48,7 +50,8 @@ class TigrParser(AbstractParser):
                 self._execute_command()
             except Exception as e:  # intercept error thrown that wasn't caught and appending the line number
                 # that caused it
-                self._update_exception(e)
+                self.exception_handler.update_exception(e, self.current_line_number, self.current_line)
+                raise
 
     def _update_exception(self, e):
         args = e.args
@@ -59,6 +62,7 @@ class TigrParser(AbstractParser):
         arg0 = f'Error on Line {self.current_line_number}: {self.current_line}\n\t' + arg0
         e.args = (arg0, *args[1:])
         raise
+
 
     def _prepare_line(self):
         trimmed_line = self.source[self.current_line_number].strip()
