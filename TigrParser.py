@@ -53,17 +53,6 @@ class TigrParser(AbstractParser):
                 self.exception_handler.update_exception(e, self.current_line_number, self.current_line)
                 raise
 
-    def _update_exception(self, e):
-        args = e.args
-        if args:
-            arg0 = args[0]
-        else:
-            arg0 = str()
-        arg0 = f'Error on Line {self.current_line_number}: {self.current_line}\n\t' + arg0
-        e.args = (arg0, *args[1:])
-        raise
-
-
     def _prepare_line(self):
         trimmed_line = self.source[self.current_line_number].strip()
         if self._is_line_blank(trimmed_line):
