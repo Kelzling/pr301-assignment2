@@ -59,11 +59,11 @@ if __name__ == "__main__":
             # only on windows, if this was portable we should add the linux interrupt command x3
             print("If no commands are entered, you will be prompted for a file name.")
             source = sys.stdin.readlines()
-        # else:
+        else:
             # read from piped input
-            # source = sys.stdin.readlines()
+            source = sys.stdin.readlines()
 
-        reader = TigrReader(TigrParser(TurtleDrawer()), optional_file_name="error_commands.txt")
+        reader = TigrReader(TigrParser(TurtleDrawer()), optional_source=source)
         reader.go()
         print(*reader.parser.output_log)
 
