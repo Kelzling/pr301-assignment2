@@ -18,7 +18,7 @@ class TigrReader(AbstractSourceReader):
             try:
                 self.source = open(self.file_name).readlines()
             except (IOError, FileNotFoundError) as e:
-                TigrExceptionHandler().display_and_exit(FileNotFoundError(f"Error loading source code from file {e}"))
+                TigrExceptionHandler().display_and_exit(e, "Error loading source code from file")
         self.parser.parse(self.source)
 
 

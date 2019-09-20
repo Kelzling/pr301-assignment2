@@ -25,7 +25,7 @@ class TigrParser(AbstractParser):
                 # load configurable language reference from file
                 self.language_commands = json.load(json_file)  # convert to dict
         except (IOError, FileNotFoundError) as e:  # This error is thrown to be caught further up the stack
-            raise FileNotFoundError(f"Error loading commands from file: {e}")
+            self.exception_handler.display_and_exit(e, "Error loading commands from file")
 
     @property
     def output_log(self):
@@ -50,8 +50,8 @@ class TigrParser(AbstractParser):
                 self._execute_command()
             except Exception as e:  # intercept error thrown that wasn't caught and appending the line number
                 # that caused it
-                self.exception_handler.update_exception(e, self.current_line_number, self.current_line)
-                self.exception_handler.display_and_exit(e)
+                # self.exception_handler.update_exception(e, self.current_line_number, self.current_line)
+                self.exception_handler.display_and_exit(e, line_number=self.current_line_number, line=self.current_line)
 
     def _prepare_line(self):
         trimmed_line = self.source[self.current_line_number].strip()
