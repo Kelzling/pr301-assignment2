@@ -12,17 +12,15 @@ class TigrReader(AbstractSourceReader):
             self.source = optional_source
 
     def go(self):
-        try:
-            if not self.source:
-                if not self.file_name:
-                    self.file_name = input("Please enter a file name: ")
-                try:
-                    self.source = open(self.file_name).readlines()
-                except (IOError, FileNotFoundError) as e:
-                    raise FileNotFoundError(f"Error loading source code from file {e}")
-            self.parser.parse(self.source)
-        except Exception as e:  # nice error display to user
-            TigrExceptionHandler().display_and_exit(e)
+        if not self.source:
+            if not self.file_name:
+                self.file_name = input("Please enter a file name: ")
+            try:
+                self.source = open(self.file_name).readlines()
+            except (IOError, FileNotFoundError) as e:
+                TigrExceptionHandler().display_and_exit(FileNotFoundError(f"Error loading source code from file {e}"))
+        self.parser.parse(self.source)
+
 
 
 if __name__ == "__main__":
