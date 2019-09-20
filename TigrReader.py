@@ -1,6 +1,7 @@
 from TIGr import AbstractSourceReader
 from TurtleDrawer import TurtleDrawer
 from TigrParser import TigrParser
+from TigrExceptionHandler import TigrExceptionHandler
 import sys
 
 
@@ -21,9 +22,7 @@ class TigrReader(AbstractSourceReader):
                     raise FileNotFoundError(f"Error loading source code from file {e}")
             self.parser.parse(self.source)
         except Exception as e:  # nice error display to user
-            print("TIGr encountered an error and had to exit", file=sys.stderr)
-            print(*e.args, file=sys.stderr)
-            exit(1)
+            TigrExceptionHandler().display_and_exit(e)
 
 
 if __name__ == "__main__":

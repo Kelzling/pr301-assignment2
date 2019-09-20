@@ -1,5 +1,7 @@
+import sys
+
 class TigrExceptionHandler:
-    def update_exception(self, e, line_number, line):
+    def update_exception(self, e, line_number, line=""):
         args = e.args
         if args:
             arg0 = args[0]
@@ -9,3 +11,8 @@ class TigrExceptionHandler:
         e.args = (arg0, *args[1:])
 
         return e
+
+    def display_and_exit(self, e):
+        print("TIGr encountered an error and had to exit", file=sys.stderr)
+        print(*e.args, file=sys.stderr)
+        exit(1)
