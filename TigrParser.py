@@ -51,7 +51,7 @@ class TigrParser(AbstractParser):
             except Exception as e:  # intercept error thrown that wasn't caught and appending the line number
                 # that caused it
                 self.exception_handler.update_exception(e, self.current_line_number, self.current_line)
-                raise
+                self.exception_handler.display_and_exit(e)
 
     def _prepare_line(self):
         trimmed_line = self.source[self.current_line_number].strip()
