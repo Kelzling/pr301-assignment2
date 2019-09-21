@@ -2,8 +2,11 @@ import sys
 
 
 class TigrExceptionHandler:
+    def __init__(self, exit_message):
+        self.exit_message = exit_message
+
     def display_and_exit(self, e, *messages, line_number=None, line=''):
-        print("TIGr encountered an error and had to exit", file=sys.stderr)
+        print(self.exit_message, file=sys.stderr)
         if messages:
             print(*messages, file=sys.stderr)
         if line_number is not None:

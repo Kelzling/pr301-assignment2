@@ -6,8 +6,9 @@ import sys
 
 
 class TigrReader(AbstractSourceReader):
-    def __init__(self, parser, optional_file_name=None, optional_source=None):
+    def __init__(self, parser, exception_handler, optional_file_name=None, optional_source=None):
         super().__init__(parser, optional_file_name)
+        self.exception_handler = exception_handler
         if optional_source:
             self.source = optional_source
 
@@ -18,7 +19,7 @@ class TigrReader(AbstractSourceReader):
             try:
                 self.source = open(self.file_name).readlines()
             except (IOError, FileNotFoundError) as e:
-                TigrExceptionHandler().display_and_exit(e, "Error loading source code from file")
+                self.exception_handler.display_and_exit(e, "Error loading source code from file")
         self.parser.parse(self.source)
 
 
@@ -42,10 +43,11 @@ if __name__ == "__main__":
     arg_parser = argparse.ArgumentParser(description="Extract filename if present")
     arg_parser.add_argument("-f", "--file", help="Name of the file", default=None)
     args = arg_parser.parse_args()
+    the_exception_handler = TigrExceptionHandler("TIGr encountered an error and had to exit")
 
     if args.file:
         # file name provided - read input from file
-        TigrReader(TigrParser(TurtleDrawer(), TigrExceptionHandler()), optional_file_name=args.file).go()
+        TigrReader(TigrParser(TurtleDrawer(), the_exception_handler), the_exception_handler, optional_file_name=args.file).go()
     else:
         # read from stdin
         # TODO examine if this section of the code can be incorporated within the class structure
@@ -60,7 +62,7 @@ if __name__ == "__main__":
             # read from piped input
             source = sys.stdin.readlines()
 
-        reader = TigrReader(TigrParser(TurtleDrawer(), TigrExceptionHandler()), optional_source=source)
+        reader = TigrReader(TigrParser(TurtleDrawer(), the_exception_handler), the_exception_handler, optional_source=source)
         reader.go()
         print(*reader.parser.output_log)
 
