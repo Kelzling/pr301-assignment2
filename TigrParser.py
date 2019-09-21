@@ -11,7 +11,7 @@ Refactored by Kelsey Vavasour
 
 
 class TigrParser(AbstractParser):
-    def __init__(self, drawer):
+    def __init__(self, drawer, exception_handler):
         super().__init__(drawer)
         self.regex_pattern = r'(^[a-zA-Z]\b)\s+?(-?\b\d+\.?\d?\b)?\s*?([#|//].*)?$'
         self.__output_log = []
@@ -19,7 +19,7 @@ class TigrParser(AbstractParser):
         self.current_line = None
         self.current_args = None
         self.drawer_command = None
-        self.exception_handler = TigrExceptionHandler()
+        self.exception_handler = exception_handler
         try:
             with open("command_lookup.json", 'r') as json_file:
                 # load configurable language reference from file
