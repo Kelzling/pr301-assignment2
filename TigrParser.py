@@ -1,5 +1,4 @@
 from TIGr import AbstractParser
-from TigrExceptionHandler import TigrExceptionHandler
 import re
 import json
 
