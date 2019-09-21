@@ -23,7 +23,7 @@ class TigrParser(AbstractParser):
             with open("command_lookup.json", 'r') as json_file:
                 # load configurable language reference from file
                 self.language_commands = json.load(json_file)  # convert to dict
-        except (IOError, FileNotFoundError) as e:  # This error is thrown to be caught further up the stack
+        except (IOError, FileNotFoundError) as e:
             self.exception_handler.display_and_exit(e, "Error loading commands from file")
 
     @property
@@ -47,9 +47,7 @@ class TigrParser(AbstractParser):
                 self._prepare_command()
 
                 self._execute_command()
-            except Exception as e:  # intercept error thrown that wasn't caught and appending the line number
-                # that caused it
-                # self.exception_handler.update_exception(e, self.current_line_number, self.current_line)
+            except Exception as e:
                 self.exception_handler.display_and_exit(e, line_number=self.current_line_number, line=self.current_line)
 
     def _prepare_line(self):
@@ -75,7 +73,6 @@ class TigrParser(AbstractParser):
             else:
                 self.data = None
         else:
-            # Raises SyntaxError to indicate that the line line_number didn't match the required pattern
             raise SyntaxError(
                 f"Invalid Syntax")
 
