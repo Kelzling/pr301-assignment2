@@ -23,7 +23,6 @@ class TigrReader(AbstractSourceReader):
         self.parser.parse(self.source)
 
 
-
 if __name__ == "__main__":
 
     # check for file name arguments
@@ -47,7 +46,8 @@ if __name__ == "__main__":
 
     if args.file:
         # file name provided - read input from file
-        TigrReader(TigrParser(TurtleDrawer(), the_exception_handler), the_exception_handler, optional_file_name=args.file).go()
+        TigrReader(TigrParser(TurtleDrawer(), the_exception_handler), the_exception_handler,
+                   optional_file_name=args.file).go()
     else:
         # read from stdin
         # TODO examine if this section of the code can be incorporated within the class structure
@@ -62,7 +62,8 @@ if __name__ == "__main__":
             # read from piped input
             source = sys.stdin.readlines()
 
-        reader = TigrReader(TigrParser(TurtleDrawer(), the_exception_handler), the_exception_handler, optional_source=source)
+        reader = TigrReader(TigrParser(TurtleDrawer(), the_exception_handler), the_exception_handler,
+                            optional_source=source)
         reader.go()
         print(*reader.parser.output_log)
 
