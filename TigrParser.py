@@ -14,8 +14,6 @@ class TigrParser(AbstractParser):
         super().__init__(drawer)
         self.regex_pattern = r'(^[a-zA-Z]\b)\s+?(-?\b\d+\.?\d?\b)?\s*?([#|//].*)?$'
         self.__output_log = []
-        self.current_args = None
-        self.drawer_command = None
         self.exception_handler = exception_handler
         try:
             with open("command_lookup.json", 'r') as json_file:
@@ -41,9 +39,9 @@ class TigrParser(AbstractParser):
             try:
                 command, data = self._parse_line(current_line)
 
-                self._prepare_command(command, data)
+                prepared_command = self._prepare_command(command, data)
 
-                self._execute_command()
+                self._execute_command(prepared_command)
             except Exception as e:
                 self.exception_handler.display_and_exit(e, line_number=line_number, line=current_line)
 
@@ -76,22 +74,27 @@ class TigrParser(AbstractParser):
         self.drawer_command = None
 
         if command_info:
+            command = {'drawer_command': command_info[0], 'args': []}
+
             if len(command_info) > 1:
-                self.current_args.append(*command_info[1])
+                command['args'].append(*command_info[1])
             if data:
-                self.current_args.append(data)
-            self.drawer_command = command_info[0]
+                command['args'].append(data)
+            # self.drawer_command = command_info[0]
+
+            return command
         else:
             raise SyntaxError(f"Command {command} not valid")
 
-    def _execute_command(self):
+    def _execute_command(self, prepared_command):
         try:
             # explodes the created args array into the function that is being called
             # if there is nothing in the array, nothing will be passed! Nice and fancy.
-            output = self.drawer.__getattribute__(self.drawer_command)(*self.current_args)
+            output = self.drawer.__getattribute__(prepared_command['drawer_command'])(*prepared_command['args'])
         except AttributeError:
             raise SyntaxError(
-                f'Command {self.command} Not recognized by drawer - Command reference mismatch detected')
+                f'Command {prepared_command["drawer_command"]}' +
+                'Not recognized by drawer - Command reference mismatch detected')
         else:
             self._log_drawer_output(output)
 
