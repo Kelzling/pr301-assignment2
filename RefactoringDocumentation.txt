@@ -20,7 +20,7 @@ Documented:
 
 Bad Smell 1:
 Name:       Long Method
-Category:   Bloater
+Category:   Bloater            
 Location:   TIGr-TigrParser.py-TigrParser-parse-line 28-78
 Reasons:    
             1. Method is too long by several standards - 50 lines, and doesn't fit on a single screen
@@ -48,6 +48,18 @@ Strategies: Extract Method? To help tidy up the classes,
             Extract Class (once the method/classes have been reworked)
 
 
+Bad Smell 3:
+Name:       Temporary Field
+Category:   Object-Orientation Abuser
+Location:   TIGr-TigrParser.py-TigrParser-source,command,data,current_line_number,current_line,current_args,drawer_command
+Reasons:
+
+            1. It is unclear which fields are used in which order inside the algorithm they are used for, as it simply presents as a series of method calls. This makes it harder to understand and work with the code, and it may end up breaking in strange ways if rearranged badly (or just returning incorrect results).
+            2. It isn't easy to see and understand everywhere each of the fields is used
+            3. The class as a whole is needlessly made more complicated
+            
+Strategies: Extract Class, Replace fields with local variables, Remove field if completely unnecessary
+
 Refactoring Evaluations:
 
 Bad Smell 1:
@@ -62,6 +74,7 @@ Why was it the worst?
     This smell was the worst because the one really long method had a bunch of other bad smells in it that would be much harder to extract and cure while they were all tangled up together. 
 
 Version Control:
+    Initial State: https://github.com/Kelzling/pr301-assignment2/tree/dc3a3490fa933936c7dd2347fe562db500737ccd
     Commits from: https://github.com/Kelzling/pr301-assignment2/commit/dc7fb843ce09742123e4e497eacc7ccc0b37421d
     To: https://github.com/Kelzling/pr301-assignment2/commit/d9eadf2ac66a4bf6de58e58c22e09a7f230118db
     Total Number: 8
@@ -99,6 +112,7 @@ Why was it the worst?
     The exception handling was a reasonably important part of the program in the end, and the code that was making it happen was scattered across several classes. It was also scattered throughout the innards of one of those classes, leading to inconsistent outputs to users. I originally thought it was Divergent Change in the parser, but realised that it was affecting two classes, and was therefore worse than I originally thought, and definitaly more like Shotgun Surgery. It was definitely negatively affecting the readibility and maintainability of the code.
     
 Version Control:
+    Initial State: https://github.com/Kelzling/pr301-assignment2/tree/5cdf543b2c061141ff386ccc5a2829c38faa2a87
     Commits from:     https://github.com/Kelzling/pr301-assignment2/commit/26fc3f935aeabbd191c8f37d73ca626ee90b698b
     To: https://github.com/Kelzling/pr301-assignment2/commit/d48742e3fa9d5de34ec9fef386f018b2fc04f8f8
     Total Number: 15
