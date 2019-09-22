@@ -14,7 +14,6 @@ class TigrParser(AbstractParser):
         super().__init__(drawer)
         self.regex_pattern = r'(^[a-zA-Z]\b)\s+?(-?\b\d+\.?\d?\b)?\s*?([#|//].*)?$'
         self.__output_log = []
-        self.current_line_number = None
         self.current_line = None
         self.current_args = None
         self.drawer_command = None
@@ -36,10 +35,9 @@ class TigrParser(AbstractParser):
             raw_source = [raw_source]
         self.source = raw_source
         for line_number in range(0, len(self.source) - 1):
-            self.current_line_number = line_number
 
             try:
-                if not self._prepare_line():
+                if not self._prepare_line(line_number):
                     continue
 
                 self._parse_line()
@@ -48,10 +46,10 @@ class TigrParser(AbstractParser):
 
                 self._execute_command()
             except Exception as e:
-                self.exception_handler.display_and_exit(e, line_number=self.current_line_number, line=self.current_line)
+                self.exception_handler.display_and_exit(e, line_number=line_number, line=self.current_line)
 
-    def _prepare_line(self):
-        trimmed_line = self.source[self.current_line_number].strip()
+    def _prepare_line(self, line_number):
+        trimmed_line = self.source[line_number].strip()
         if self._is_line_blank(trimmed_line):
             return False
         else:
