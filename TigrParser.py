@@ -39,9 +39,9 @@ class TigrParser(AbstractParser):
                 continue
 
             try:
-                self._parse_line(current_line)
+                command, data = self._parse_line(current_line)
 
-                self._prepare_command()
+                self._prepare_command(command, data)
 
                 self._execute_command()
             except Exception as e:
@@ -57,30 +57,32 @@ class TigrParser(AbstractParser):
         match = re.findall(self.regex_pattern, line)
         if match:
             groups = match[0]
-            self.command = groups[0].upper()
+            command = groups[0].upper()
             if groups[1]:
-                self.data = int(round(float(groups[1])))
+                data = int(round(float(groups[1])))
                 """ Parser accepts decimals but silently rounds them in the background - all numbers passed are
                 stored as integers"""
             else:
-                self.data = None
+                data = None
+
+            return command, data
         else:
             raise SyntaxError(
                 f"Invalid Syntax")
 
-    def _prepare_command(self):
-        command_info = self.language_commands.get(self.command)
+    def _prepare_command(self, command, data):
+        command_info = self.language_commands.get(command)
         self.current_args = []
         self.drawer_command = None
 
         if command_info:
             if len(command_info) > 1:
                 self.current_args.append(*command_info[1])
-            if self.data:
-                self.current_args.append(self.data)
+            if data:
+                self.current_args.append(data)
             self.drawer_command = command_info[0]
         else:
-            raise SyntaxError(f"Command {self.command} not valid")
+            raise SyntaxError(f"Command {command} not valid")
 
     def _execute_command(self):
         try:
