@@ -14,7 +14,6 @@ class TigrParser(AbstractParser):
         super().__init__(drawer)
         self.regex_pattern = r'(^[a-zA-Z]\b)\s+?(-?\b\d+\.?\d?\b)?\s*?([#|//].*)?$'
         self.__output_log = []
-        self.current_line = None
         self.current_args = None
         self.drawer_command = None
         self.exception_handler = exception_handler
@@ -33,34 +32,29 @@ class TigrParser(AbstractParser):
     def parse(self, raw_source):
         if type(raw_source) == str:  # defensively handles edge case where a single command was passed as a string
             raw_source = [raw_source]
-        self.source = raw_source
-        for line_number in range(0, len(self.source) - 1):
+
+        for line_number in range(0, len(raw_source) - 1):
+            current_line = self._prepare_line(raw_source[line_number])
+            if self._is_line_blank(current_line):
+                continue
 
             try:
-                if not self._prepare_line(line_number):
-                    continue
-
-                self._parse_line()
+                self._parse_line(current_line)
 
                 self._prepare_command()
 
                 self._execute_command()
             except Exception as e:
-                self.exception_handler.display_and_exit(e, line_number=line_number, line=self.current_line)
+                self.exception_handler.display_and_exit(e, line_number=line_number, line=current_line)
 
-    def _prepare_line(self, line_number):
-        trimmed_line = self.source[line_number].strip()
-        if self._is_line_blank(trimmed_line):
-            return False
-        else:
-            self.current_line = trimmed_line
-            return True
+    def _prepare_line(self, line):
+        return line.strip()
 
     def _is_line_blank(self, line):
         return not line
 
-    def _parse_line(self):
-        match = re.findall(self.regex_pattern, self.current_line)
+    def _parse_line(self, line):
+        match = re.findall(self.regex_pattern, line)
         if match:
             groups = match[0]
             self.command = groups[0].upper()
