@@ -5,14 +5,14 @@ import json
 
 class CommandBuilder:
     def __init__(self, lookup_file_name="command_lookup.json"):
-        self._language_commands = self._load_command_lookup(lookup_file_name)
+        self._language_commands = self.__load_command_lookup(lookup_file_name)
 
-    def _load_command_lookup(self, file_name):
+    def __load_command_lookup(self, file_name):
         try:
             with open(file_name, 'r') as json_file:
                 # load configurable language reference from file
                 return json.load(json_file)  # convert to dict
-        except (IOError, FileNotFoundError) as e:
+        except (IOError, FileNotFoundError):
             raise FileNotFoundError(f"Command Lookup {file_name} not found")
 
     def prepare_command(self, command_text, data=None):

@@ -1,7 +1,6 @@
 from TIGr import AbstractParser
 from CommandBuilder import CommandBuilder
 import re
-import json
 
 """
 Uses Regular Expressions in Parser, Parsed from Configurable Lookup Table
@@ -31,12 +30,12 @@ class TigrParser(AbstractParser):
             raw_source = [raw_source]
 
         for line_number in range(0, len(raw_source) - 1):
-            current_line = self._prepare_line(raw_source[line_number])
-            if self._is_line_blank(current_line):
+            current_line = self.__prepare_line(raw_source[line_number])
+            if self.__is_line_blank(current_line):
                 continue
 
             try:
-                command, data = self._parse_line(current_line)
+                command, data = self.__parse_line(current_line)
 
                 prepared_command = self.command_builder.prepare_command(command, data)
 
@@ -45,13 +44,13 @@ class TigrParser(AbstractParser):
             except Exception as e:
                 self.exception_handler.display_and_exit(e, line_number=line_number, line=current_line)
 
-    def _prepare_line(self, line):
+    def __prepare_line(self, line):
         return line.strip()
 
-    def _is_line_blank(self, line):
+    def __is_line_blank(self, line):
         return not line
 
-    def _parse_line(self, line):
+    def __parse_line(self, line):
         match = re.findall(self.regex_pattern, line)
         if match:
             groups = match[0]
