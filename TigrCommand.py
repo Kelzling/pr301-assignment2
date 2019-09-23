@@ -5,6 +5,6 @@ class TigrCommand:
 
     def execute(self, drawer):
         try:
-            drawer.__getattribute__(self.drawer_command)(*self.args)
+            return drawer.__getattribute__(self.drawer_command)(*self.args)
         except AttributeError:
             raise SyntaxError(f'Command {self.drawer_command} not recognised by drawer')
