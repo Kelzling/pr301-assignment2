@@ -19,6 +19,8 @@ Divergent Change 4      TigrParser          Parsing + Output Logging
 Documented:
 
 Bad Smell 1:
+Program State:
+            https://github.com/Kelzling/pr301-assignment2/tree/dc3a3490fa933936c7dd2347fe562db500737ccd
 Name:       Long Method
 Category:   Bloater            
 Location:   TIGr-TigrParser.py-TigrParser-parse-line 28-78
@@ -27,14 +29,18 @@ Reasons:
             2. It is not very easy to understand everything the method is doing and why without a fair amount of reading
             3. There are other bad smells to TigrParser that will be harder to refactor because this method is so long, or are possibly only a problem because nearly everything the class does is handled by the one method.
             
-Strategies: Extract Method, Decompose Conditional,
-            Method Object (It's half there already, a couple more steps to add from this could be useful before applying Extract Method)
+Strategies: 
+            Extract Method, Method Object (It's half there already, a couple more steps to add from this could be useful before applying Extract Method)
+
+
             
             
 Bad Smell 2:
+Program State:
+            https://github.com/Kelzling/pr301-assignment2/tree/5cdf543b2c061141ff386ccc5a2829c38faa2a87
 Name:       Shotgun Surgery
 Category:   Change Preventer
-Location:   TIGr-TigrParser.py-TigrParser-parse,_parse_line,_prepare_command, _exectute_command-lines 50-57, 83-84,98,107
+Location:   TIGr-TigrParser.py-TigrParser-parse,_parse_line,_prepare_command, _execute_command-lines 50-57, 83-84,98,107
             TIGr-TigrReader.py-TigrReader-go-lines 23-26
 Reasons: 
             1. Trying to change anything to do with the Exception Handling and how to handle displaying the errors to the user has required understanding how they were handled in two different classes, and making changes in two different classes, in order to get things to still work.
@@ -49,11 +55,12 @@ Strategies: Extract Method? To help tidy up the classes,
 
 
 Bad Smell 3:
+Program State:
+            https://github.com/Kelzling/pr301-assignment2/tree/b9fd8a6432fcd5bbf425cfffd27f828665f0ac05
 Name:       Temporary Field
 Category:   Object-Orientation Abuser
 Location:   TIGr-TigrParser.py-TigrParser-source,command,data,current_line_number,current_line,current_args,drawer_command
 Reasons:
-
             1. It is unclear which fields are used in which order inside the algorithm they are used for, as it simply presents as a series of method calls. This makes it harder to understand and work with the code, and it may end up breaking in strange ways if rearranged badly (or just returning incorrect results).
             2. It isn't easy to see and understand everywhere each of the fields is used
             3. The class as a whole is needlessly made more complicated
@@ -73,26 +80,17 @@ Original Location:
 Why was it the worst?
     This smell was the worst because the one really long method had a bunch of other bad smells in it that would be much harder to extract and cure while they were all tangled up together. 
 
-Version Control:
-    Initial State: https://github.com/Kelzling/pr301-assignment2/tree/dc3a3490fa933936c7dd2347fe562db500737ccd
-    Commits from: https://github.com/Kelzling/pr301-assignment2/commit/dc7fb843ce09742123e4e497eacc7ccc0b37421d
-    To: https://github.com/Kelzling/pr301-assignment2/commit/d9eadf2ac66a4bf6de58e58c22e09a7f230118db
-    Total Number: 8
-
 Refactoring Steps Taken:
     1) Method Object - This class was effectively a method object already, so I used the second step from Method Object - move local variables to class fields to make it easier to untangle the long method.
     2) Extract Method - Extracted what became the _parse_line() method, which is the part that took the trimmed line, applied the regex pattern, and stored the contents of the match group on the object.
     3) Method Object - I applied the moving local variables to class fields part of Method Object again to move the args local variable that was used by two separate parts of the long method, which were then extracted in the next two steps.
     4) Extract Method - Extracted what became the _prepare_command() method, which was the part that took the data that was parsed, used the look up table, and prepared the information that is needed to interact with the drawer
     5) Extract Method - Extracted what became the _exectute_command() method, which is the part that was interacting with the drawer object. Also extracted the logging of the output to a separate method for readability purposes.
-    6) Extract Method - Extracted what became the _prepare_line() method, which is the part that trimmed excess whitespace off each end of the string and checked to see if it was actually blank or not. This involved deciding how to handle the fact that failng this check currently just led to a continue statement to skip to the next iteration of the parsing loop. In the end I made the function return a boolean value to indicate whether the line should continue to be parsed or not.
+    6) Extract Method - Extracted what became the _prepare_line() method, which is the part that trimmed excess whitespace off each end of the string and checked to see if it was actually blank or not. This involved deciding how to handle the fact that failing this check currently just led to a continue statement to skip to the next iteration of the parsing loop. In the end I made the function return a boolean value to indicate whether the line should continue to be parsed or not.
     7) Ran PEP8 validation over the code and fixed minor warnings
 
-Testing Done:
-    At this time, the groups tester has not yet supplied any unit tests, so I needed to test manually. After each step documented above, I ran the code through several variations of commands that I had prepared. Some of these were designed to throw specific errors so I could view if the expected error output had been displayed. The output log was printed to the console for examining, and I could see the output to the drawer. This helped me catch several times where the code had actually stopped working as intended and find the bugs fairly quickly.
-
 Effectiveness Evaluation:
-    I think that this refactoring has really helped overall. The parse method is now only 24 lines long, which includes spacing and excetion handling, and most of it is calls to methods with descriptive names that indicate the steps being taken. Each of these shorter methods handles one aspect of parsing the line, and is much easier to understand. Some of them had previously had their error handling quite far separated from the remainder of the logic due to indentation, and this was difficult to grasp. It should also be much easier to identify and handle other bad smells now that the different parts of the algorithm have been separated out.
+    I think that this refactoring has really helped overall. The parse method is now only 24 lines long, which includes spacing and exception handling, and most of it is calls to methods with descriptive names that indicate the steps being taken. Each of these shorter methods handles one aspect of parsing the line, and is much easier to understand. Some of them had previously had their error handling quite far separated from the remainder of the logic due to indentation, and this was difficult to grasp. It should also be much easier to identify and handle other bad smells now that the different parts of the algorithm have been separated out.
     I did end up adding what may amount to being a few temporary fields while trying to untangle everything else, but these can be cleaned up later if they become the worst smell.
     
     
@@ -109,13 +107,7 @@ Original Location:
     TIGr-TigrReader.py-TigrReader-go-lines 23-26
 
 Why was it the worst?
-    The exception handling was a reasonably important part of the program in the end, and the code that was making it happen was scattered across several classes. It was also scattered throughout the innards of one of those classes, leading to inconsistent outputs to users. I originally thought it was Divergent Change in the parser, but realised that it was affecting two classes, and was therefore worse than I originally thought, and definitaly more like Shotgun Surgery. It was definitely negatively affecting the readibility and maintainability of the code.
-    
-Version Control:
-    Initial State: https://github.com/Kelzling/pr301-assignment2/tree/5cdf543b2c061141ff386ccc5a2829c38faa2a87
-    Commits from:     https://github.com/Kelzling/pr301-assignment2/commit/26fc3f935aeabbd191c8f37d73ca626ee90b698b
-    To: https://github.com/Kelzling/pr301-assignment2/commit/d48742e3fa9d5de34ec9fef386f018b2fc04f8f8
-    Total Number: 15
+    The exception handling was a reasonably important part of the program in the end, and the code that was making it happen was scattered across several classes. It was also scattered throughout the innards of one of those classes, leading to inconsistent outputs to users. I originally thought it was Divergent Change in the parser, but realised that it was affecting two classes, and was therefore worse than I originally thought, and definitely more like Shotgun Surgery. It was definitely negatively affecting the readability and maintainability of the code.
 
 Refactoring Steps Taken:
     1) Move Method (ish) - removed the adding of line numbers to error messages from a couple of places and consolidated it all in one spot inside the try/catch in parse(). Changed error type in a couple of places to try and make this work.
@@ -125,10 +117,36 @@ Refactoring Steps Taken:
     5) Extract Method - extracted display_and_exit() from reader, which handled how to do the final outputting to user formatting and exiting the program
     6) Reworked ExceptionHandler to make more sense now that all of it's responsibilities were clear
     7) Removed the responsibility for instantiating the ExceptionHandler to the runtime script instead of leaving to the classes that had the functionality removed from them
+    8) PEP8 Tidying up
     
 
 Testing Done:
     I have still been needing to manually test the code at this stage. As this refactoring was working on the exception handling code, I defined a set of lines that would trigger various errors to be output, and ran a test for each of these at the very least before every commit to the git repo to ensure continued functionality.
     
 Effectiveness Evaluation:
-    This refactoring has definitely helped split out the responsibilities that should not have been being handled by the Reader and Parser, which will improve future maintainability and modification. However, it has left a few other bad smells lying around, or uncovered them a bit further. The way the exception handler is being passed to both classes at the moment feels slightly clunky, but it's not too bad. Unfortunately, this round of refactoring has definitely exarcerbated the Temporary Field problem highlighted by the previous round.
+    This refactoring has definitely helped split out the responsibilities that should not have been being handled by the Reader and Parser, which will improve future maintainability and modification. However, it has left a few other bad smells lying around, or uncovered them a bit further. The way the exception handler is being passed to both classes at the moment feels slightly clunky, but it's not too bad. Unfortunately, this round of refactoring has definitely exacerbated the Temporary Field problem highlighted by the previous round.
+    
+
+
+Bad Smell 3:
+    
+Name:
+    Temporary Field
+Category:
+    Object-Orientation Abuser
+Original Location:
+    TIGr-TigrParser.py-TigrParser-source,command,data,current_line_number,current_line,current_args,drawer_command
+    
+Why was it the worst?
+    The use of temporary fields was making the class confusing and complicated, and much harder to understand. Both the methods and how they interacted, and where the fields were used.
+  
+Refactoring Steps Taken:
+    1) Refactored current_line_number, current_line, and source into local variables
+    2) Refactored command and data into local variables
+    3) Refactored drawer_command and current_args into local variables
+    4) Extract Class - drawer_command and current_args because I wasn't happy with the first version of refactoring these
+    5) PEP8 tidy up
+
+Testing Done:
+
+Effectiveness Evaluation:
