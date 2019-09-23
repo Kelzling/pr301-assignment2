@@ -1,4 +1,5 @@
 from TIGr import AbstractParser
+from CommandBuilder import CommandBuilder
 import re
 import json
 
@@ -16,11 +17,13 @@ class TigrParser(AbstractParser):
         self.__output_log = []
         self.exception_handler = exception_handler
         try:
-            with open("command_lookup.json", 'r') as json_file:
+            self.command_builder = CommandBuilder()
+
+            #with open("command_lookup.json", 'r') as json_file:
                 # load configurable language reference from file
-                self.language_commands = json.load(json_file)  # convert to dict
-        except (IOError, FileNotFoundError) as e:
-            self.exception_handler.display_and_exit(e, "Error loading commands from file")
+             #   self.language_commands = json.load(json_file)  # convert to dict
+        except Exception as e:
+            self.exception_handler.display_and_exit(e)
 
     @property
     def output_log(self):
@@ -39,9 +42,11 @@ class TigrParser(AbstractParser):
             try:
                 command, data = self._parse_line(current_line)
 
-                prepared_command = self._prepare_command(command, data)
+                #prepared_command = self._prepare_command(command, data)
+                prepared_command = self.command_builder.prepare_command(command, data)
 
-                self._execute_command(prepared_command)
+                #self._execute_command(prepared_command)
+                prepared_command.execute(self.drawer)
             except Exception as e:
                 self.exception_handler.display_and_exit(e, line_number=line_number, line=current_line)
 
